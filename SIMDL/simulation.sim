@@ -1,0 +1,242 @@
+{ 
+Onur Yilmaz
+CENG 476 - Project
+}
+
+{
+Attribute to track if a person 
+needs to wait for others on the bus
+}
+	attrib Wait_Others : integer;
+
+{
+Queue for people walking to bus
+}
+	queue To_Bus_1 :fifo;
+	queue To_Bus_2 :fifo;
+	queue To_Bus_3 :fifo;
+	queue To_Bus_4 :fifo;
+
+{
+Queue for people waiting on the bus
+}
+	queue Wait_on_Bus_1 :fifo;
+	queue Wait_on_Bus_2 :fifo;
+	queue Wait_on_Bus_3 :fifo;
+	queue Wait_on_Bus_4 :fifo;
+
+{
+Variable for filled time of buses
+}
+	var Fulled_Time_1 : integer initial(0);
+	var Fulled_Time_2 : integer initial(0);
+	var Fulled_Time_3 : integer initial(0);
+	var Fulled_Time_4 : integer initial(0);
+
+{
+Variable for arrival time of buses
+}
+	var Arrival_Time_1 : integer initial(0);
+	var Arrival_Time_2 : integer initial(0);
+	var Arrival_Time_3 : integer initial(0);
+	var Arrival_Time_4 : integer initial(0);
+
+{
+Back counters for people
+}
+	var Count_1 : integer initial(25);
+	var Count_2 : integer initial(25);
+	var Count_3 : integer initial(25);
+	var Count_4 : integer initial(25);
+
+{
+Driving time statistics for buses
+}
+	stat Drive_T_1 :standard;
+	stat Drive_T_2 :standard;
+	stat Drive_T_3 :standard;
+	stat Drive_T_4 :standard;
+
+{
+Walking time statistics for people
+}
+	stat Walk_Time_T_1 :standard;
+	stat Walk_Time_T_2 :standard;
+	stat Walk_Time_T_3 :standard;
+	stat Walk_Time_T_4 :standard;
+
+
+{
+BUS #1
+}
+
+{
+Generator for people for bus #1
+}
+generator People_1;
+	interarrival 100000;
+	destination To_Bus_1;
+	generate 25;
+	during:
+		Wait_Others  := 0;
+end People_1; 
+
+{
+Server for walking action of people for bus #1
+}
+server Walk_1(25);
+  	service normal(sinx,0,20,10,3);
+  	source  To_Bus_1;
+	destination Wait_on_Bus_1;
+	after:
+		Fulled_Time_1 := clock;
+end;
+
+{
+Server for driving action of bus #1
+}
+server Driver_1;
+	source Wait_on_Bus_1;
+	service Wait_Others;
+	before:
+		Count_1 := Count_1 - 1;
+	during:
+		collect clock in Walk_Time_T_1;
+		if Count_1 = 0 then Wait_Others := normal(1,0,100,80,5) ;
+	after:
+		Arrival_Time_1 := clock;
+		collect Wait_Others in Drive_T_1;
+end;
+
+
+{
+BUS #2
+}
+
+{
+Generator for people for bus #2
+}
+generator People_2;
+	interarrival 100000;
+	destination To_Bus_2;
+	generate 25;
+	during:
+		Wait_Others  := 0;
+end People_2; 
+
+{
+Server for walking action of people for bus #2
+}
+server Walk_2(25);
+  	service  normal(sinx+24,0,30,12,3.5);
+  	source  To_Bus_2;
+	destination Wait_on_Bus_2;
+	after:
+		Fulled_Time_2 := clock;
+
+end;
+
+{
+Server for driving action of bus #1
+}
+server Driver_2;
+	source Wait_on_Bus_2;
+	service Wait_Others;
+	before:
+		Count_2 := Count_2 - 1;
+	during:
+		collect clock in Walk_Time_T_2;
+		if Count_2 = 0 then Wait_Others := normal(2,0,100,80,5) ;
+	after:
+		Arrival_Time_2 := clock;
+		collect Wait_Others in Drive_T_2;
+end;
+
+{
+BUS #3
+}
+
+{
+Generator for people for bus #3
+}
+generator People_3;
+	interarrival 100000;
+	destination To_Bus_3;
+	generate 25;
+	during:
+		Wait_Others  := 0;
+end People_3; 
+
+{
+Server for walking action of people for bus #3
+}
+server Walk_3(25);
+  	service  normal(sinx+49,0,40,15,4.5);
+  	source  To_Bus_3;
+	destination Wait_on_Bus_3;
+	after:
+		Fulled_Time_3 := clock;
+end;
+
+{
+Server for driving action of bus #3
+}
+server Driver_3;
+	source Wait_on_Bus_3;
+	service Wait_Others;
+	before:
+		Count_3 := Count_3 - 1;
+	during:
+		collect clock in Walk_Time_T_3;
+		if Count_3 = 0 then Wait_Others := normal(3,0,100,80,5) ;
+	after:
+		Arrival_Time_3 := clock;
+		collect Wait_Others in Drive_T_3;
+end;
+
+
+{
+BUS #4
+}
+
+{
+Generator for people for bus #4
+}
+generator People_4;
+	interarrival 100000;
+	destination To_Bus_4;
+	generate 25;
+	during:
+		Wait_Others  := 0;
+end People_4; 
+
+{
+Server for walking action of people for bus #4
+}
+server Walk_4(25);
+  	service normal(sinx+74,0,50,18,5.5);
+  	source  To_Bus_4;
+	destination Wait_on_Bus_4;
+	after:
+		Fulled_Time_4 := clock;
+end;
+
+{
+Server for driving action of bus #4
+}
+server Driver_4;
+	source Wait_on_Bus_4;
+	service Wait_Others;
+	before:
+		Count_4 := Count_4 - 1;
+	during:
+		collect clock in Walk_Time_T_4;
+		if Count_4 = 0 then Wait_Others := normal(4,0,100,80,5);
+	after:
+		Arrival_Time_4 := clock;
+		collect Wait_Others in Drive_T_4;
+end;
+
+{
+End of code
+}
